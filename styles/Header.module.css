@@ -1,0 +1,58 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: rem(64px);
+  margin-bottom: rem(32px);
+  background-color: light-dark(rgba(255, 255, 255, 0.85), rgba(20, 21, 23, 0.85));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: rem(1px) solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.inner {
+  height: rem(64px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: rem(12px);
+}
+
+.brandLink {
+  display: flex;
+  align-items: center;
+  gap: rem(10px);
+  text-decoration: none;
+  color: inherit;
+}
+
+.brandTitle {
+  font-weight: 700;
+  font-size: rem(17px);
+  letter-spacing: -0.02em;
+  color: light-dark(var(--mantine-color-gray-9), var(--mantine-color-white));
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  padding: rem(8px) rem(12px);
+  border-radius: var(--mantine-radius-md);
+  text-decoration: none;
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  transition: all 0.15s ease;
+
+  @mixin hover {
+    background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6));
+    color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+  }
+
+  [data-mantine-color-scheme] &[data-active] {
+    background-color: var(--mantine-color-teal-filled);
+    color: var(--mantine-color-white);
+  }
+}

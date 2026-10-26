@@ -1,0 +1,148 @@
+import type { Env } from '../worker/src'
+
+export type PageConfig = {
+  title?: string
+  subtitle?: string
+  links?: PageConfigLink[]
+  group?: PageConfigGroup
+  favicon?: string
+  logo?: string
+  maintenances?: {
+    upcomingColor?: string
+  }
+  customFooter?: string
+  autoRefreshSeconds?: number
+  defaultCompactView?: boolean
+}
+
+export type MaintenanceConfig = {
+  monitors?: string[]
+  title?: string
+  body: string
+  start: number | string
+  end?: number | string
+  color?: string
+}
+
+export type PageConfigGroup = { [key: string]: string[] }
+
+export type PageConfigLink = {
+  link: string
+  label: string
+  highlight?: boolean
+}
+
+export type MonitorTarget = {
+  id: string
+  name: string
+  method: string
+  target: string
+  tooltip?: string
+  statusPageLink?: string
+  hideLatencyChart?: boolean
+  expectedCodes?: number[]
+  timeout?: number
+  retries?: number
+  retryDelayMs?: number
+  headers?: { [key: string]: string | number }
+  body?: string
+  responseKeyword?: string
+  responseForbiddenKeyword?: string
+  checkProxy?: string
+  checkProxyFallback?: boolean
+}
+
+export type WorkerConfig<TEnv = Env> = {
+  kvWriteCooldownMinutes?: number
+  passwordProtection?: string
+  monitors: MonitorTarget[]
+  notification?: Notification
+  callbacks?: Callbacks<TEnv>
+}
+
+export type Notification = {
+  webhook?: WebhookConfig
+  timeZone?: string
+  gracePeriod?: number
+  skipNotificationIds?: string[]
+  skipErrorChangeNotification?: boolean
+}
+
+type SingleWebhook = {
+  url: string
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH'
+  headers?: { [key: string]: string | number }
+  payloadType: 'param' | 'json' | 'x-www-form-urlencoded'
+  payload: any
+  timeout?: number
+}
+
+export type WebhookConfig = SingleWebhook | SingleWebhook[]
+
+export type Callbacks<TEnv = Env> = {
+  onStatusChange?: (
+    env: TEnv,
+    monitor: MonitorTarget,
+    isUp: boolean,
+    timeIncidentStart: number,
+    timeNow: number,
+    reason: string
+  ) => Promise<any> | any
+  onIncident?: (
+    env: TEnv,
+    monitor: MonitorTarget,
+    timeIncidentStart: number,
+    timeNow: number,
+    reason: string
+  ) => Promise<any> | any
+}
+
+export type IncidentRecord = {
+  start: number[]
+  end: number | null // null if it's still open
+  error: string[]
+}
+
+export type LatencyRecord = {
+  loc: string
+  ping: number
+  time: number
+}
+
+export type MonitorState = {
+  lastUpdate: number
+  overallUp: number
+  overallDown: number
+  incident: Record<string, IncidentRecord[]>
+  latency: Record<string, LatencyRecord[]> // recent 12 hour data, N min interval
+}
+
+export type MonitorStateCompacted = {
+  lastUpdate: number
+  overallUp: number
+  overallDown: number
+
+  // incident is stored in columnar format
+  incident: Record<
+    string, // monitor id
+    {
+      start: number[][]
+      end: (number | null)[]
+      error: string[][]
+    }
+  >
+
+  // latency is stored in columnar format
+  // uses Run-length encoding for loc & Hex encoding for number arrays
+  latency: Record<
+    string, // monitor id
+    {
+      loc: {
+        v: string[] // RLE values
+        c: number[] // RLE counts
+      }
+      ping: string // Hex encoded Uint16Array
+      time: string // Hex encoded Uint32Array
+    }
+  >
+}

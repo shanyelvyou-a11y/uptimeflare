@@ -1,0 +1,28 @@
+name = "uptimeflare"
+account_id = "00000000-0000-0000-0000-000000000000"
+main = "src/index.ts"
+compatibility_date = "2025-04-02"
+compatibility_flags = [ "nodejs_compat" ]
+
+# 每分钟跑一次监控检查（对应官方 deploy.tf 的 cloudflare_workers_cron_trigger）
+[triggers]
+crons = ["*/5 * * * *"]
+
+# SQLite-backed Durable Object：异地节点检查用（对应 deploy.tf 的 migrations new_sqlite_classes）
+[[durable_objects.bindings]]
+name = "REMOTE_CHECKER_DO"
+class_name = "RemoteChecker"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RemoteChecker"]
+
+# D1 数据库：database_id 在 `npx -y wrangler d1 create uptimeflare_d1` 后回填
+[[d1_databases]]
+binding = "UPTIMEFLARE_D1"
+database_name = "uptimeflare_d1"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
